@@ -81,6 +81,12 @@ input {
   font-size: 15px;
 }
 
+.button:hover,
+.button:hover
+ {
+  box-shadow: rgba(32, 33, 35, 0.3) 0px 2px 3px 1px, rgba(36, 38, 40, 0.15) 1px 3px 7px 3px;
+}
+
 .photo-card {
     border-radius: 5px;
     overflow: hidden;

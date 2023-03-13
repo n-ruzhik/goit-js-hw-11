@@ -25,7 +25,7 @@ loadMoreBtn.refs.button.addEventListener('click', getImages);
 function onSearch(e) {
   e.preventDefault();
 
-  pixabyApiService.query = e.currentTarget.elements.searchQuery.value;
+  pixabyApiService.query = e.currentTarget.elements.searchQuery.value.trim();
 
   if (pixabyApiService.query === '') {
     Notiflix.Notify.info('No query in the form. Please, enter your request');
@@ -39,14 +39,45 @@ function onSearch(e) {
   getImages();
 }
 
-function getImages() {
-  loadMoreBtn.disable();
+// ----------------------- Через then ---------------------
+// function getImages() {
+//   loadMoreBtn.disable();
 
-  pixabyApiService.fetchImages().then(({ hits, totalHits }) => {
+//   pixabyApiService.fetchImages().then(({ hits, totalHits }) => {
+//     if (hits.length > 0) {
+//       loadMoreBtn.show();
+//       appendImagesMarkup({ hits, totalHits });
+//       loadMoreBtn.enable();
+//       if (pixabyApiService.imageQty >= totalHits) {
+//         Notiflix.Notify.info(
+//           "We're sorry, but you've reached the end of search results."
+//         );
+//         loadMoreBtn.hide();
+//       }
+//     } else {
+//       loadMoreBtn.hide();
+//       Notiflix.Notify.failure(
+//         'Sorry, there are no images matching your search query. Please try again.'
+//       );
+
+//       return;
+//     }
+//   });
+// }
+
+// ----------------------- Через async/await ---------------------
+async function getImages() {
+  loadMoreBtn.disable();
+  const images = await pixabyApiService.fetchImages();
+  try {
+    const hits = images.hits;
+    const totalHits = images.totalHits;
+
     if (hits.length > 0) {
       loadMoreBtn.show();
-      appendImagesMarkup({ hits, totalHits });
+      appendImagesMarkup(hits);
       loadMoreBtn.enable();
+
       if (pixabyApiService.imageQty >= totalHits) {
         Notiflix.Notify.info(
           "We're sorry, but you've reached the end of search results."
@@ -61,10 +92,12 @@ function getImages() {
 
       return;
     }
-  });
+  } catch (error) {
+    console.log(error.message);
+  }
 }
 
-function appendImagesMarkup({ hits, totalHits }) {
+function appendImagesMarkup(hits) {
   const markup = hits
     .map(
       ({
@@ -104,5 +137,3 @@ function appendImagesMarkup({ hits, totalHits }) {
 function clearGalleryContainer() {
   refs.galleryContainer.innerHTML = '';
 }
-
-// Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
